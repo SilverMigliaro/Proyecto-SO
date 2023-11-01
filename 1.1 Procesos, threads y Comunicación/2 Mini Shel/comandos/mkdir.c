@@ -1,26 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <string.h>
-#include <signal.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <utime.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
-/**
- * Crea un directorio en el path indicado (args[1]).
- */
-int command_mkdir(char **args) {
-    struct stat st;
-    if (args[1] == NULL) {
-        perror("mkdir: argumento esperado, null encontrado.\n");
-    } else if (stat(args[1], &st) == -1) {
-        mkdir(args[1], 0700);
+int main(int argc, char **argv) 
+{
+    if (argc != 2) 
+    {
+        perror("\033[0;31mmkdir: argumento esperado, no encontrado.\n");
+    } 
+    else
+    {
+        if (mkdir(argv[1], 0700) == 0) 
+        {
+            printf("Directorio '%s' creado con éxito.\n", argv[1]);
+        } 
+        else
+        {
+            perror("\033[0;31mmkdir: Error al crear el directorio");
+        }
     }
     return EXIT_SUCCESS;
 }

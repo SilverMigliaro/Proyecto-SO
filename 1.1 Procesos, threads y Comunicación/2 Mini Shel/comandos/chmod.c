@@ -1,36 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <string.h>
-#include <signal.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <dirent.h>
-#include <utime.h>
 #include <sys/stat.h>
 
-
-
-/**
- * Modifica los permisos de un archivo.
- */
-int command_chmod(char **args) 
-{
-        int opt, aux;
-        if (args[1] == NULL) 
-        {
-            perror("chmod: argumento esperado, null encontrado.\n");
+int main (int argc, char ** argv) {
+        if (argc != 3){
+            perror("\033[0;31mchmod: argumento esperado, no encontrado.\n");
         } 
-        else 
-        {
-            opt = strtol(args[1], 0, 8); // cambia a base 8
-            if (chmod(args[2], opt) != 0) 
-            {
-                perror("chmod: Error al ingresar en la direccion indicada.");
+        else{
+            if (access(argv[2], F_OK) == -1){
+                perror("\033[0;31mchmod: Error al obtener información del archivo/directorio.\n");
             }
-        }
-        return EXIT_SUCCESS;
+        
+            char *endptr;        
+            long opt = strtol(argv[1], &endptr, 8); 
+             
+            if (*endptr != '\0'){
+                perror("\033[0;31mchmod: Los permisos deben ser un número octal válido.\n");
+            }
+            else{
+            	if(opt>=0 && opt<=511){
+            
+                    if (chmod(argv[2], opt) != 0){
+                        perror("\033[0;31mchmod: Error al ingresar en la direccion indicada.\n");
+                    }
+                    else{
+                        printf("Permisos cambiados correctamente\n");
+                    }
+                }
+                else{
+                    perror("\033[0;31mchmod: codigo de permisos invalido.\n");
+                }
+             }   
+        }   
+      exit(EXIT_SUCCESS);
 }

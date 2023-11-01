@@ -31,7 +31,7 @@ void consultar(int id, tMemoria *  memoria);
 
 int main() {
 
-    srand(time(NULL));
+    srand(getpid());
 
     int id_memoria;
 
@@ -70,6 +70,7 @@ int main() {
 }
 
 void reservar(int id, tMemoria *  memoria) {
+
     int hora = rand() % CANT_HORAS;
     sem_wait(&(memoria->mutex));
     if (!memoria->reservas[hora].estado) {
@@ -83,6 +84,7 @@ void reservar(int id, tMemoria *  memoria) {
 }
 
 void cancelar(int id, tMemoria *  memoria) {
+
     int hora = rand() % CANT_HORAS;
     sem_wait(&(memoria->mutex));
     if (memoria->reservas[hora].estado){
@@ -103,6 +105,7 @@ void cancelar(int id, tMemoria *  memoria) {
 }
 
 void consultar(int id, tMemoria *  memoria) {
+
     int hora = rand() % CANT_HORAS;
     if (memoria->reservas[hora].estado) {
         printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", id, hora + 9,memoria->reservas[hora].id);

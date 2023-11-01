@@ -16,21 +16,25 @@
  * Abre un archivo, y en caso de que no exista lo crea. Para luego
  * escribir en el la cadena de caracteres ingresada.
  */
-int command_cat(char **args) {
-    int file, op;
-    char c[128]; 
-
-    if (args[1] == NULL) {
-        perror("cat: argumento esperado, null encontrado.\n");
+int main(int argc, char ** argv){
+    if(argc != 2){
+        perror("\033[0;31mcat: argumento esperado, null encontrado.\n");
     }
-    file = open(args[1], O_RDONLY);
-    if (file == -1)  {
-        perror("cat: Error al abrir el archivo.\n");
+    else{
+        int file = open(argv[1], O_RDONLY);
+        if (file == -1){
+            perror("\033[0;31mcat: Error al abrir el archivo.\n");
+        }
+        else{
+            int op;
+            char c[128]; 
+    
+            while((op=read(file, c, 128))){
+                write(STDOUT_FILENO, c, op);
+            }
+            printf("\n");
+            close(file); 
+        }
     }
-    while((op=read(file, c, 128))){
-        write(STDOUT_FILENO, c, op);
-    }
-    printf("\n");
-    close(file); 
-    return EXIT_SUCCESS;
+    exit(EXIT_SUCCESS);
 }

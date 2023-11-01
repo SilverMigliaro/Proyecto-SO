@@ -6,64 +6,108 @@
 #include <string.h>
 #include <errno.h>
 
-#include "comandos.h"
-#include "admin_comandos.h"
+#define CANT_FUNCIONES 8
+#define DELIMITADORES " \t\r\n\a"
 
-/**
-* Funcion que ejecuta un comando, creando un proceso hijo, 
-* y este realiza la ejecucion.
-*/
-int ejecutar(char **args){
+char *lista_de_comandos[] = {
+    "mkdir",
+    "rm",
+    "touch",
+    "ls",
+    "cat",
+    "chmod",
+    "help",
+    "clear"
+};
 
-	pid_t pid;
-	int i, wstatus;
-	int (*funcion)(char**) = NULL;
+void ejecutar(char **args)
+{
+    pid_t pid;
+    int encontre = 0;
+    char comando[64] = "./comandos/";
 
-	for(i = 0; i < contador_funciones(); i++){
-		if(strcmp(args[0], lista_de_comandos[i]) == 0){
-			funcion = &(*lista_de_funciones[i]);
-		}
-	}
+    for (int i = 0; i < CANT_FUNCIONES && !encontre; i++) {
+        if (strcmp(args[0], lista_de_comandos[i]) == 0) {
+            strcat(comando, args[0]);
+            encontre = 1;
+        }
+    }
 
-	pid = fork();
-	if(pid == 0){
-		if(funcion == NULL){
-			return execvp(args[0], args);
-		} else {
-			return (*funcion)(args);
-		}
-		exit(EXIT_FAILURE);
-	} else if(pid < 0){
-		perror("Error en el fork");
-	} else {
-		waitpid(pid, &wstatus, WUNTRACED);
-	}
-	return EXIT_FAILURE;
-
+    if (encontre) {
+        pid = fork();
+        if (pid == 0) {
+            if (execv(comando, args) == -1)
+                perror("\033[0;31mError al ejecutar el comando");
+        } else {
+            if (pid < 0) {
+                perror("\033[0;31mError fork :: Error al lanzar el metodo");
+            } else {
+                wait(NULL);
+            }
+        }
+    } else {
+        printf("\033[0;31mMiniShell ~$ El comando ingresado no es valido\n");
+        printf("\033[0;33mMiniShell ~$ Si necesita ayuda, consulte el comando \033[0;36mhelp\n");
+    }
 }
 
-/**
-* Funcion principal de la Shell, se reciben los comandos.
-*/
-int main(int argv, char *argc[]){
-	char *linea;
-	char **args;
-	int estado;
+char *get_comando()
+{
+    char *entrada = (char *)malloc(32);
+    int caracter;
+    int leer = 1;
+    int i = 0;
 
-	do{
-		printf("MiniShell ~$ ");
-		linea = get_comando();
+    while (leer) {
+        caracter = getchar();
+        if (caracter == '\n') {
+            entrada[i] = '\0';
+            leer = 0;
+        } else {
+            entrada[i] = caracter;
+            i++;
+        }
+    }
+    return entrada;
+}
 
-        if (strcmp(linea,"exit") == 0){
-            printf("Saliendo de MiniShell...\n");
-            exit(EXIT_SUCCESS);
+void separar_str(char *linea, char **args)
+{
+    int i = 0;
+    char *argumento = strtok(linea, DELIMITADORES);
+    while (argumento != NULL && i < 5) {
+        args[i] = argumento;
+        i++;
+        argumento = strtok(NULL, DELIMITADORES);
+    }
+    args[i] = NULL; // Terminar la lista de argumentos con NULL
+}
+
+int main(int argc, char *argv[])
+{
+    char *linea;
+    char *args[6]; // Cambiado de char **args a char *args[6]
+    int estado = 1;
+
+    printf("Comisión 2\nIntegrantes:: Francisco Ruiz Gómez, Silvestre Migliaro\nSistemas operativos 2023\n");
+    sleep(3);
+    write(STDOUT_FILENO, "\33[H\33[2J", 7);
+
+    while (estado) {
+        printf("\033[0;32mMiniShell ~$\033[0m ");
+        linea = get_comando();
+
+        if (strcmp(linea, "exit") == 0) {
+            estado = 0;
+        } else {
+            separar_str(linea, args);
+            ejecutar(args);
         }
 
-		args = separar_str(linea);
-		estado = ejecutar(args);
-		free(linea);
-		free(args);
-	} while (estado);
+        free(linea); // Liberar la memoria asignada a entrada
+    }
 
-	return EXIT_SUCCESS;
+    printf("Saliendo de MiniShell...\n");
+
+    return EXIT_SUCCESS;
 }

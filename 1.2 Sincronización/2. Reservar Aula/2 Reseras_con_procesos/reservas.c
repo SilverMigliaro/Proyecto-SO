@@ -28,7 +28,7 @@ typedef struct Memoria tMemoria;
 
 int main() {
 
-    srand(time(NULL));
+    //srand(time(NULL));
 
     int id_memoria;
 
