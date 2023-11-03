@@ -19,6 +19,8 @@ typedef struct Reserva tReserva;
 struct Memoria{
     tReserva reservas[CANT_HORAS];
     sem_t mutex;
+    sem_t escritor;
+    sem_t lector;
 };
 typedef struct Memoria tMemoria;
 
@@ -72,7 +74,7 @@ int main() {
 void reservar(int id, tMemoria *  memoria) {
 
     int hora = rand() % CANT_HORAS;
-    sem_wait(&(memoria->mutex));
+    sem_wait(&(memoria->escritor));
     if (!memoria->reservas[hora].estado) {
         memoria->reservas[hora].estado = true;
         memoria->reservas[hora].id = id;
@@ -80,13 +82,13 @@ void reservar(int id, tMemoria *  memoria) {
     } else {
         printf("Alumno %d :: no pudo reservar el aula a las %d:00hs por que ya estaba reservada\n", id, hora + 9);
     }
-    sem_post(&(memoria->mutex));
+    sem_post(&(memoria->escritor));
 }
 
 void cancelar(int id, tMemoria *  memoria) {
 
     int hora = rand() % CANT_HORAS;
-    sem_wait(&(memoria->mutex));
+    sem_wait(&(memoria->escritor));
     if (memoria->reservas[hora].estado){
         if(memoria->reservas[hora].id == id) {
             memoria->reservas[hora].estado = false;
@@ -101,15 +103,36 @@ void cancelar(int id, tMemoria *  memoria) {
     {
         printf("Alumno %d :: no pudo cancelar la reserva del aula a las %d:00hs por que el aula esta libre\n",id, hora + 9);
     }
-    sem_post(&(memoria->mutex));
+    sem_post(&(memoria->escritor));
 }
 
 void consultar(int id, tMemoria *  memoria) {
 
     int hora = rand() % CANT_HORAS;
+    //sección entrada
+    sem_wait(&memoria->mutex);
+    if(sem_trywait(&memoria->lector) == -1){
+        sem_wait(&memoria->escritor);
+    }
+    else{
+        sem_post(&memoria->lector);
+    }
+    sem_post(&memoria->mutex);
+    sem_post(&memoria->lector);
+    //lectura
     if (memoria->reservas[hora].estado) {
         printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", id, hora + 9,memoria->reservas[hora].id);
     } else {
         printf("Alumno %d consulta que el aula está libre a las %d:00hs\n",id, hora + 9);
     }
+    //sección de salida
+    sem_wait(&memoria->lector);
+    sem_wait(&memoria->mutex);
+    if(sem_trywait(&memoria->lector) == -1){
+        sem_post(&memoria->escritor);
+    }
+    else{
+        sem_post(&memoria->lector);
+    }
+    sem_post(&memoria->mutex);
 }

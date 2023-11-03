@@ -20,6 +20,8 @@ typedef struct Reserva tReserva;
 struct Memoria{
     tReserva reservas[CANT_HORAS];
     sem_t mutex;
+    sem_t escritor;
+    sem_t lector;
 };
 typedef struct Memoria tMemoria;
 
@@ -48,7 +50,9 @@ int main() {
 		exit (1);
 	}
 
-	sem_init (&(memoria->mutex),1,0);
+	sem_init(&(memoria->escritor),1,1);
+    sem_init(&(memoria->lector),1,0);
+    sem_init(&(memoria->mutex),1,1);
 	
 	tReserva reserva;
     reserva.estado = false;

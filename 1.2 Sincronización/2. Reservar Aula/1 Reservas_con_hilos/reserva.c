@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <time.h>
+#include <semaphore.h>
 
 #define NUM_ALUMNOS 25
 #define HORAS_DIA 12
@@ -20,7 +21,7 @@ struct Alumno {
 typedef struct Alumno tAlumno;
 
 tReserva reservas[HORAS_DIA];
-pthread_mutex_t mutex;
+sem_t escritor, lector, mutex;
 
 void * alumno(void* arg);
 void reservar(tAlumno* alumno);
@@ -38,7 +39,9 @@ int main() {
         reservas[i] = reserva;
     }
 
-    pthread_mutex_init(&mutex, NULL);
+    sem_init(&escritor,1,1);
+    sem_init(&lector,1,0);
+    sem_init(&mutex,1,1);
 
     pthread_t alumnos[NUM_ALUMNOS];
     tAlumno datos_alumnos[NUM_ALUMNOS];
@@ -52,14 +55,16 @@ int main() {
         pthread_join(alumnos[i], NULL);
     }
 
-    pthread_mutex_destroy(&mutex);
+    sem_destroy(&escritor);
+    sem_destroy(&lector);
+    sem_destroy(&mutex);
 
     return EXIT_SUCCESS;
 }
 
 void reservar(tAlumno* alumno) {
     int hora = rand() % HORAS_DIA;
-    pthread_mutex_lock(&mutex);
+    sem_wait(&escritor);
     if (!reservas[hora].estado) {
         reservas[hora].estado = true;
         reservas[hora].id = alumno->id;
@@ -67,12 +72,12 @@ void reservar(tAlumno* alumno) {
     } else {
         printf("Alumno %d :: no pudo reservar el aula a las %d:00hs por que ya estaba reservada\n", alumno->id, hora + 9);
     }
-    pthread_mutex_unlock(&mutex);
+    sem_post(&escritor);
 }
 
 void cancelar(tAlumno* alumno) {
     int hora = rand() % HORAS_DIA;
-    pthread_mutex_lock(&mutex);
+    sem_wait(&escritor);
     if (reservas[hora].estado){
         if(reservas[hora].id == alumno->id) {
             reservas[hora].estado = false;
@@ -87,16 +92,37 @@ void cancelar(tAlumno* alumno) {
     {
         printf("Alumno %d :: no pudo cancelar la reserva del aula a las %d:00hs por que el aula esta libre\n", alumno->id, hora + 9);
     }
-    pthread_mutex_unlock(&mutex);
+    sem_post(&escritor);
 }
 
 void consultar(tAlumno* alumno) {
     int hora = rand() % HORAS_DIA;
+    //sección entrada
+    sem_wait(&mutex);
+    if(sem_trywait(&lector) == -1){
+        sem_wait(&escritor);
+    }
+    else{
+        sem_post(&lector);
+    }
+    sem_post(&mutex);
+    sem_post(&lector);
+    //lectura
     if (reservas[hora].estado) {
         printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", alumno->id, hora + 9,reservas[hora].id);
     } else {
         printf("Alumno %d consulta que el aula está libre a las %d:00hs\n", alumno->id, hora + 9);
     }
+    //sección salida
+    sem_wait(&lector);
+    sem_wait(&mutex);
+    if(sem_trywait(&lector) == -1){
+        sem_post(&escritor);
+    }
+    else{
+        sem_post(&lector);
+    }
+    sem_post(&mutex);
 }
 
 void * alumno(void* arg) {
