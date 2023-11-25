@@ -33,9 +33,9 @@ void letraA()
     while (1)
     {
         read(pipeA[0], &mensaje, SIZE_MSG);
+        read(pipeA[0], &mensaje, SIZE_MSG);
         printf("A");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
         write(pipeB[1], &mensaje, SIZE_MSG);
     }
@@ -48,7 +48,6 @@ void letraB()
     tMessage mensaje;
 
     close(pipeA[0]);
-    close(pipeA[1]);
     close(pipeB[1]);
     close(pipeC[0]);
 
@@ -57,10 +56,11 @@ void letraB()
         read(pipeB[0], &mensaje, SIZE_MSG);
         printf("B");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
+        write(pipeA[1], &mensaje, SIZE_MSG);
         write(pipeC[1], &mensaje, SIZE_MSG);
     }
+    close(pipeA[1]);
     close(pipeB[0]);
     close(pipeC[1]);
 }
@@ -77,13 +77,11 @@ void letraC()
     while (1)
     {
         read(pipeC[0], &mensaje, SIZE_MSG);
-        strcpy(mensaje.body, "enviando");
-        write(pipeA[1], &mensaje, SIZE_MSG);
         read(pipeC[0], &mensaje, SIZE_MSG);
         printf("C\n");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
+        write(pipeA[1], &mensaje, SIZE_MSG);
         write(pipeA[1], &mensaje, SIZE_MSG);
     }
     close(pipeC[0]);
@@ -109,6 +107,9 @@ int main(int argc, char *argv[])
 
     tMessage mensaje;
     strcpy(mensaje.body, "enviando");
+    
+    write(pipeA[1], &mensaje, SIZE_MSG);
+    write(pipeA[1], &mensaje, SIZE_MSG);
     write(pipeA[1], &mensaje, SIZE_MSG);
 
     //Creo hijos
