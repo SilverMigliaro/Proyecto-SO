@@ -9,6 +9,7 @@
 
 #define CANT_ALUMNOS 25
 #define CANT_HORAS 12
+#define MAX_OPERACIONES 4
 
 struct Reserva {
     bool estado;
@@ -53,7 +54,7 @@ int main() {
 		exit (1);
 	}
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < MAX_OPERACIONES; i++) {
         int operacion = rand() % 100;
         int id = getpid()-getppid();
         if (operacion < 50) {
@@ -111,14 +112,15 @@ void consultar(int id, tMemoria *  memoria) {
     int hora = rand() % CANT_HORAS;
     //sección entrada
     sem_wait(&memoria->mutex);
-    if(sem_trywait(&memoria->lector) == -1){
-        sem_wait(&memoria->escritor);
+    if(sem_trywait(&memoria->lector) == 0){
+        sem_post(&memoria->lector);
     }
     else{
+        sem_wait(&memoria->escritor);
         sem_post(&memoria->lector);
     }
     sem_post(&memoria->mutex);
-    sem_post(&memoria->lector);
+    
     //lectura
     if (memoria->reservas[hora].estado) {
         printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", id, hora + 9,memoria->reservas[hora].id);
@@ -128,11 +130,11 @@ void consultar(int id, tMemoria *  memoria) {
     //sección de salida
     sem_wait(&memoria->lector);
     sem_wait(&memoria->mutex);
-    if(sem_trywait(&memoria->lector) == -1){
-        sem_post(&memoria->escritor);
+    if(sem_trywait(&memoria->lector) == 0){
+        sem_post(&memoria->lector);
     }
     else{
-        sem_post(&memoria->lector);
+        sem_post(&memoria->escritor);
     }
     sem_post(&memoria->mutex);
 }

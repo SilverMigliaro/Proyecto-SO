@@ -10,6 +10,7 @@
 
 #define CANT_ALUMNOS 25
 #define CANT_HORAS 12
+#define MAX_OPERACIONES 4
 
 struct Reserva {
     bool estado;
@@ -29,9 +30,7 @@ typedef struct Memoria tMemoria;
 #define SHM_SIZE sizeof(tMemoria)
 
 int main() {
-
-    //srand(time(NULL));
-
+    
     int id_memoria;
 
 	id_memoria = shmget (KEY, SHM_SIZE, IPC_CREAT | 0666);

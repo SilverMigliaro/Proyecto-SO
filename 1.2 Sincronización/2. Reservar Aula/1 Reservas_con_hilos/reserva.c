@@ -8,6 +8,7 @@
 
 #define NUM_ALUMNOS 25
 #define HORAS_DIA 12
+#define MAX_OPERACIONES 4
 
 struct Reserva {
     bool estado;
@@ -99,14 +100,15 @@ void consultar(tAlumno* alumno) {
     int hora = rand() % HORAS_DIA;
     //sección entrada
     sem_wait(&mutex);
-    if(sem_trywait(&lector) == -1){
-        sem_wait(&escritor);
+    if(sem_trywait(&lector) == 0){
+        sem_post(&lector);
     }
     else{
+        sem_wait(&escritor);
         sem_post(&lector);
     }
     sem_post(&mutex);
-    sem_post(&lector);
+    
     //lectura
     if (reservas[hora].estado) {
         printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", alumno->id, hora + 9,reservas[hora].id);
@@ -116,18 +118,18 @@ void consultar(tAlumno* alumno) {
     //sección salida
     sem_wait(&lector);
     sem_wait(&mutex);
-    if(sem_trywait(&lector) == -1){
-        sem_post(&escritor);
+    if(sem_trywait(&lector) == 0){
+        sem_post(&lector);
     }
     else{
-        sem_post(&lector);
+        sem_post(&escritor);
     }
     sem_post(&mutex);
 }
 
 void * alumno(void* arg) {
     struct Alumno* alumno = (struct Alumno*)arg;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < MAX_OPERACIONES; i++) {
         int operacion = rand() % 100;
         if (operacion < 50) {
             reservar(alumno);
@@ -136,7 +138,7 @@ void * alumno(void* arg) {
         } else {
             consultar(alumno);
         }
-        sleep(1);
+        //sleep(1);
     }
     pthread_exit(NULL);
 }
