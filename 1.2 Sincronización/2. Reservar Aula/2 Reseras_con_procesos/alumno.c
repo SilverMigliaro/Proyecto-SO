@@ -64,7 +64,7 @@ int main() {
         } else {
             consultar(id,memoria);
         }
-        sleep(1);
+       // sleep(1);
     }
 
     shmdt(memoria);
@@ -116,9 +116,9 @@ void consultar(int id, tMemoria *  memoria) {
         sem_post(&memoria->lector);
     }
     else{
-        sem_wait(&memoria->escritor);
-        sem_post(&memoria->lector);
+        sem_wait(&memoria->escritor); 
     }
+    sem_post(&memoria->lector);
     sem_post(&memoria->mutex);
     
     //lectura
@@ -128,8 +128,8 @@ void consultar(int id, tMemoria *  memoria) {
         printf("Alumno %d consulta que el aula está libre a las %d:00hs\n",id, hora + 9);
     }
     //sección de salida
-    sem_wait(&memoria->lector);
     sem_wait(&memoria->mutex);
+    sem_wait(&memoria->lector);
     if(sem_trywait(&memoria->lector) == 0){
         sem_post(&memoria->lector);
     }

@@ -22,7 +22,8 @@ struct Alumno {
 typedef struct Alumno tAlumno;
 
 tReserva reservas[HORAS_DIA];
-sem_t escritor, lector, mutex;
+sem_t escritor, lector, mutex, cola_servicio;
+int lectores_activos = 0;
 
 void * alumno(void* arg);
 void reservar(tAlumno* alumno);
@@ -43,6 +44,7 @@ int main() {
     sem_init(&escritor,1,1);
     sem_init(&lector,1,0);
     sem_init(&mutex,1,1);
+    sem_init(&cola_servicio,1,1);
 
     pthread_t alumnos[NUM_ALUMNOS];
     tAlumno datos_alumnos[NUM_ALUMNOS];
@@ -105,8 +107,9 @@ void consultar(tAlumno* alumno) {
     }
     else{
         sem_wait(&escritor);
-        sem_post(&lector);
     }
+  
+    sem_post(&lector);
     sem_post(&mutex);
     
     //lectura
@@ -116,8 +119,9 @@ void consultar(tAlumno* alumno) {
         printf("Alumno %d consulta que el aula está libre a las %d:00hs\n", alumno->id, hora + 9);
     }
     //sección salida
-    sem_wait(&lector);
     sem_wait(&mutex);
+    sem_wait(&lector);
+
     if(sem_trywait(&lector) == 0){
         sem_post(&lector);
     }
@@ -138,7 +142,6 @@ void * alumno(void* arg) {
         } else {
             consultar(alumno);
         }
-        //sleep(1);
     }
     pthread_exit(NULL);
 }
