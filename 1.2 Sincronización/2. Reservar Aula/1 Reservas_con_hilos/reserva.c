@@ -22,8 +22,7 @@ struct Alumno {
 typedef struct Alumno tAlumno;
 
 tReserva reservas[HORAS_DIA];
-sem_t escritor, lector, mutex, cola_servicio;
-int lectores_activos = 0;
+sem_t escritor, lector, mutex;
 
 void * alumno(void* arg);
 void reservar(tAlumno* alumno);
@@ -44,7 +43,6 @@ int main() {
     sem_init(&escritor,1,1);
     sem_init(&lector,1,0);
     sem_init(&mutex,1,1);
-    sem_init(&cola_servicio,1,1);
 
     pthread_t alumnos[NUM_ALUMNOS];
     tAlumno datos_alumnos[NUM_ALUMNOS];
@@ -108,7 +106,7 @@ void consultar(tAlumno* alumno) {
     else{
         sem_wait(&escritor);
     }
-  
+    
     sem_post(&lector);
     sem_post(&mutex);
     
