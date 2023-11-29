@@ -6,9 +6,9 @@
 #include <time.h>
 #include <sys/wait.h>
 
-#define CANT_CLIENTES 20
-#define MAX_COLA_ENTRADA 10
-#define MAX_CLIENTE_COLA 3
+#define CANT_CLIENTES 80
+#define MAX_COLA_ENTRADA 30
+#define MAX_CLIENTE_COLA 15
 #define EMPLEADO_CLIENTES 1
 #define EMPLEADO_EMPRESA 2
 
@@ -108,8 +108,6 @@ void cliente_comun(int id){
     int cola_atencion_comun = msgget((key_t)KEY_ATENCION_COMUN, 0666);
     int cola_termina_comun = msgget((key_t)KEY_TERMINA_COMUN, 0666);
 
-	printf("ClienteComun %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
-
     if (msgrcv(cola_entrada, &msg_entrada, sizeof(msg_entrada), TIPO_ENTRADA, IPC_NOWAIT) != -1){
         printf("ClienteComun %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);
         sleep(2);
@@ -153,8 +151,6 @@ void cliente_empresa(int id){
     int cola_empresa_esperando = msgget((key_t)KEY_EMPRESA_ESPERANDO, 0666);
     int cola_atencion_empresa = msgget((key_t)KEY_ATENCION_EMPRESA, 0666);
     int cola_termina_empresa = msgget((key_t)KEY_TERMINA_EMPRESA, 0666);
-
-	printf("ClienteEmpresa %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
 
     if (msgrcv(cola_entrada, &msg_entrada, sizeof(msg_entrada), TIPO_ENTRADA, IPC_NOWAIT) != -1){
         printf("ClienteEmpresa %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);
@@ -201,8 +197,6 @@ void cliente_politico(int id){
     int cola_politico_esperando = msgget((key_t)KEY_POLITICO_ESPERANDO, 0666);
     int cola_atencion_politico = msgget((key_t)KEY_ATENCION_POLITICO, 0666);
     int cola_termina_politico = msgget((key_t)KEY_TERMINA_POLITICO, 0666);
-
-	printf("ClientePolitico %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
 
     if (msgrcv(cola_entrada, &msg_entrada, sizeof(msg_entrada), TIPO_ENTRADA, IPC_NOWAIT) != -1){
         printf("ClientePolitico %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);

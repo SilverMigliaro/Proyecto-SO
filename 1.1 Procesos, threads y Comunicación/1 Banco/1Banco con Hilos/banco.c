@@ -37,14 +37,12 @@ sem_t cola_entrada,
     
 void *cliente_comun(void *args){
     int id = *((int *)args);
-	printf("ClienteComun %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
 	
     if (sem_trywait(&cola_entrada) == 0){
         printf("ClienteComun %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);
         sem_wait(&cola_cliente_comun);
         sleep(1);
         printf("ClienteComun %d :: Se retira de la cola de entrada\n", id);
-        sleep(1);
         sem_post(&cola_entrada);
         printf("ClienteComun %d :: Ingreso en la cola de cliente Comun\n", id);
         if(sem_trywait(&comun_esperando) == -1){
@@ -76,14 +74,12 @@ void *cliente_comun(void *args){
 
 void *cliente_empresa(void *args){
 	int id = *((int *)args);
-	printf("ClienteEmpresa %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
 	
     if (sem_trywait(&cola_entrada) == 0){
         printf("ClienteEmpresa %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);
         sleep(1);
         sem_wait(&cola_empresa);
         printf("ClienteEmpresa %d :: Se retira de la cola de entrada\n", id);
-        sleep(1);
         sem_post(&cola_entrada);
         printf("ClienteEmpresa %d :: Ingreso en la cola de cliente Empresa\n", id);
         if(sem_trywait(&empresa_esperando)!=0){
@@ -122,14 +118,12 @@ void *cliente_empresa(void *args){
 
 void *cliente_politico(void *args){
 	int id = *((int *)args);
-	printf("ClientePolitico %d :: Llega al banco y consulta si hay lugar en mesa de entrada.\n", id);
 	
     if (sem_trywait(&cola_entrada) == 0){
         printf("ClientePolitico %d :: Hay lugar en la mesa de entrada y espera en la misma.\n", id);
         sleep(1);
         sem_wait(&cola_politico);
         printf("ClientePolitico %d :: Se retira de la cola de entrada\n", id);
-        sleep(1);
         sem_post(&cola_entrada);
         printf("ClientePolitico %d :: Ingreso en la cola de cliente Politico\n", id);
        	if(sem_trywait(&politico_esperando)!=0){

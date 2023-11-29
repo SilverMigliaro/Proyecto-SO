@@ -38,7 +38,6 @@ void letraA()
         read(pipeA[0], &mensaje, SIZE_MSG);
         printf("A");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
         write(pipeB[1], &mensaje, SIZE_MSG);
     }
@@ -62,7 +61,6 @@ void letraB()
         read(pipeB[0], &mensaje, SIZE_MSG);
         printf("B");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
         write(pipeC[1], &mensaje, SIZE_MSG);
     }
@@ -88,7 +86,6 @@ void letraC()
         read(pipeC[0], &mensaje, SIZE_MSG);
         printf("C");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
         write(pipeD[1], &mensaje, SIZE_MSG);
     }
@@ -115,7 +112,6 @@ void letraD()
         read(pipeD[0], &mensaje, SIZE_MSG);
         printf("D\n");
         fflush(NULL);
-        sleep(1);
         strcpy(mensaje.body, "enviando");
         write(pipeA[1], &mensaje, SIZE_MSG);
     }

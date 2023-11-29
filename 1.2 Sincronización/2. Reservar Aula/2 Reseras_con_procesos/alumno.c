@@ -64,7 +64,7 @@ int main() {
         } else {
             consultar(id,memoria);
         }
-       // sleep(1);
+        sleep(1);
     }
 
     shmdt(memoria);

@@ -46,7 +46,6 @@ void* letraA(){
         sem_wait(&sem_a);
         printf("A");
         fflush(NULL);
-        sleep(1);
         sem_post(&sem_b);
     }
     pthread_exit(NULL);
@@ -57,7 +56,6 @@ void* letraB(){
         sem_wait(&sem_b);
         printf("B");
         fflush(NULL);
-        sleep(1);
         sem_post(&sem_c);
     }
     pthread_exit(NULL);
@@ -70,7 +68,6 @@ void* letraC(){
         sem_wait(&sem_c);
         printf("C");
         fflush(NULL);
-        sleep(1);
         sem_post(&sem_d);
     }
     pthread_exit(NULL);
@@ -82,8 +79,6 @@ void* letraD(){
         sem_post(&sem_c);
         sem_wait(&sem_d);
         printf("D\n");
-        fflush(NULL);
-        sleep(1);
         sem_post(&sem_a);
     }
     pthread_exit(NULL);

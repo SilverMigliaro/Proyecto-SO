@@ -69,9 +69,9 @@ void reservar(tAlumno* alumno) {
     if (!reservas[hora].estado) {
         reservas[hora].estado = true;
         reservas[hora].id = alumno->id;
-        printf("Alumno %d :: reservó el aula a las %d:00hs\n", alumno->id, hora + 9);
+        printf("Alumno %d :: Reservó el aula a las %d:00hs\n", alumno->id, hora + 9);
     } else {
-        printf("Alumno %d :: no pudo reservar el aula a las %d:00hs por que ya estaba reservada\n", alumno->id, hora + 9);
+        printf("Alumno %d :: No pudo reservar el aula a las %d:00hs por que ya estaba reservada\n", alumno->id, hora + 9);
     }
     sem_post(&escritor);
 }
@@ -83,15 +83,15 @@ void cancelar(tAlumno* alumno) {
         if(reservas[hora].id == alumno->id) {
             reservas[hora].estado = false;
             reservas[hora].id = -1;
-            printf("Alumno %d :: canceló la reserva del aula a las %d:00hs\n", alumno->id, hora + 9);
+            printf("Alumno %d :: Canceló la reserva del aula a las %d:00hs\n", alumno->id, hora + 9);
         }
         else
         {
-            printf("Alumno %d :: no pudo cancelar la reserva del aula a las %d:00hs por que estaba reservada por otro alumno\n", alumno->id, hora + 9);
+            printf("Alumno %d :: No pudo cancelar la reserva del aula a las %d:00hs por que estaba reservada por otro alumno\n", alumno->id, hora + 9);
         }
     } else 
     {
-        printf("Alumno %d :: no pudo cancelar la reserva del aula a las %d:00hs por que el aula esta libre\n", alumno->id, hora + 9);
+        printf("Alumno %d :: No pudo cancelar la reserva del aula a las %d:00hs por que el aula esta libre\n", alumno->id, hora + 9);
     }
     sem_post(&escritor);
 }
@@ -112,9 +112,9 @@ void consultar(tAlumno* alumno) {
     
     //lectura
     if (reservas[hora].estado) {
-        printf("Alumno %d consulta que el aula está reservada a las %d:00hs por el alumno %d\n", alumno->id, hora + 9,reservas[hora].id);
+        printf("Alumno %d Consulta que el aula está reservada a las %d:00hs por el alumno %d\n", alumno->id, hora + 9,reservas[hora].id);
     } else {
-        printf("Alumno %d consulta que el aula está libre a las %d:00hs\n", alumno->id, hora + 9);
+        printf("Alumno %d Consulta que el aula está libre a las %d:00hs\n", alumno->id, hora + 9);
     }
     //sección salida
     sem_wait(&mutex);
@@ -140,6 +140,7 @@ void * alumno(void* arg) {
         } else {
             consultar(alumno);
         }
+        sleep(1);
     }
     pthread_exit(NULL);
 }
