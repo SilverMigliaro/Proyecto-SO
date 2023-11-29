@@ -1,3 +1,3 @@
-gcc -o banco banco.c
+gcc -pthread -o banco banco.c
 ./banco
 

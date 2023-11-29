@@ -115,23 +115,16 @@ void cliente_comun(int id){
         printf("ClienteComun %d :: Se retira de la cola de entrada\n", id);
         msgsnd(cola_entrada, &msg_entrada, sizeof(msg_entrada), 0);
         printf("ClienteComun %d :: Ingreso en la cola de cliente Comun\n", id);
-        if (msgrcv(cola_comun_esperando, &msg_comun_esperando, sizeof(msg_comun_esperando), TIPO_COMUN_ESPERANDO, IPC_NOWAIT) != -1)
-    	{
-        	msgsnd(cola_comun_esperando, &msg_comun_esperando, sizeof(msg_comun_esperando), 0);
-        	msgsnd(cola_comun_esperando, &msg_comun_esperando, sizeof(msg_comun_esperando), 0);
-        }
+        msgsnd(cola_comun_esperando, &msg_comun_esperando, sizeof(msg_comun_esperando), 0);
+
+        if (msgrcv(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), TIPO_EMPLEADO_COMUN, IPC_NOWAIT) == -1)
+       	{
+       		msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+       	}
         else{
-        	msgsnd(cola_comun_esperando, &msg_comun_esperando, sizeof(msg_comun_esperando), 0);
-        	
-        	if (msgrcv(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), TIPO_EMPLEADO_COMUN, IPC_NOWAIT) == -1)
-       		{
-       			msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-       		}
-            else{
-                msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-                msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-            }        
-        }
+            msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+            msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+        }        
         printf("ClienteComun %d :: Esperando se atendido por empleado cliente Comun\n", id);
         msgrcv(cola_atencion_comun, &msg_atencion_comun, sizeof(msg_atencion_comun), TIPO_ATENCION_COMUN, 0);
         printf("ClienteComun %d :: Se retira de la cola de cliente Comun para ser atendido\n", id);
@@ -159,24 +152,17 @@ void cliente_empresa(int id){
         printf("ClienteEmpresa %d :: Se retira de la cola de entrada\n", id);
         msgsnd(cola_entrada, &msg_entrada, sizeof(msg_entrada), 0);
         printf("ClienteEmpresa %d :: Ingreso en la cola de cliente Empresa\n", id);
-        if (msgrcv(cola_empresa_esperando, &msg_empresa_esperando, sizeof(msg_empresa_esperando), TIPO_EMPRESA_ESPERANDO, IPC_NOWAIT) != -1)
-    	{
-        	msgsnd(cola_empresa_esperando, &msg_empresa_esperando, sizeof(msg_empresa_esperando), 0);
-        	msgsnd(cola_empresa_esperando, &msg_empresa_esperando, sizeof(msg_empresa_esperando), 0);
-        }
-        else
-        {
-        	msgsnd(cola_empresa_esperando, &msg_empresa_esperando, sizeof(msg_empresa_esperando), 0);
-        	
-        	if (msgrcv(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, IPC_NOWAIT) == -1)
-       		{
-       			msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-       		}
-            else{
-                msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-                msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-            }        
-        }
+        msgsnd(cola_empresa_esperando, &msg_empresa_esperando, sizeof(msg_empresa_esperando), 0);
+
+        if (msgrcv(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, IPC_NOWAIT) == -1)
+       	{
+       		msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+       	}
+        else{
+            msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+            msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+        }        
+        
         printf("ClienteEmpresa %d :: Esperando se atendido por empleado cliente Empresa\n", id);
         msgrcv(cola_atencion_empresa, &msg_atencion_empresa, sizeof(msg_atencion_empresa), TIPO_ATENCION_EMPRESA, 0);
         printf("ClienteEmpresa %d :: Se retira de la cola de cliente Empresa para ser atendido\n", id);
@@ -205,33 +191,25 @@ void cliente_politico(int id){
         printf("ClientePolitico %d :: Se retira de la cola de entrada\n", id);
         msgsnd(cola_entrada, &msg_entrada, sizeof(msg_entrada), 0);
         printf("ClientePolitico %d :: Ingreso en la cola de cliente Politico\n", id);
-        if (msgrcv(cola_politico_esperando, &msg_politico_esperando, sizeof(msg_politico_esperando), TIPO_POLITICO_ESPERANDO, IPC_NOWAIT) != -1)
-    	{
-        	msgsnd(cola_politico_esperando, &msg_politico_esperando, sizeof(msg_politico_esperando), 0);
-        	msgsnd(cola_politico_esperando, &msg_politico_esperando, sizeof(msg_politico_esperando), 0);
-        }
-        else
-        {
-        	msgsnd(cola_politico_esperando, &msg_politico_esperando, sizeof(msg_politico_esperando), 0);
+        msgsnd(cola_politico_esperando, &msg_politico_esperando, sizeof(msg_politico_esperando), 0);
         	
-        	if (msgrcv(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), TIPO_EMPLEADO_COMUN, IPC_NOWAIT) == -1)
-       		{
-       			msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-       		}
-            else{
-                msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-                msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
-            }   
-       		if (msgrcv(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, IPC_NOWAIT) == -1)
-       		{
-       			msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-       			msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-            }
-            else{
-                msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-       			msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
-            }        
+        if (msgrcv(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), TIPO_EMPLEADO_COMUN, IPC_NOWAIT) == -1)
+       	{
+       		msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+       	}
+        else{
+            msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+            msgsnd(cola_empleado_comun, &msg_empleado_comun, sizeof(msg_empleado_comun), 0);
+        }   
+       	if (msgrcv(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, IPC_NOWAIT) == -1)
+       	{
+       		msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+       		msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
         }
+        else{
+            msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+       		msgsnd(cola_empleado_empresa, &msg_empleado_empresa, sizeof(msg_empleado_empresa), 0);
+        }        
         printf("ClientePolitico %d :: Esperando se atendido por empleado del banco\n", id);
         msgrcv(cola_atencion_politico, &msg_atencion_politico, sizeof(msg_atencion_politico), TIPO_ATENCION_POLITICO, 0);
         printf("ClientePolitico %d :: Se retira de la cola de cliente Politico para ser atendido\n", id);
@@ -254,11 +232,11 @@ void empleado_comun(int id){
     int cola_atencion_comun = msgget((key_t)KEY_ATENCION_COMUN, 0666);
     int cola_termina_politico = msgget((key_t)KEY_TERMINA_POLITICO, 0666);
     int cola_termina_comun = msgget((key_t)KEY_TERMINA_COMUN, 0666);
-    int atendiendo = 1;
+    int no_atendi = 0;
 
     msgrcv(cola_empleado_comun,&msg_empleado_comun,sizeof(msg_empleado_comun),TIPO_EMPLEADO_COMUN,0);
     
-	while(atendiendo){
+	while(no_atendi < 3){
 		printf("\nEmpleadoComun %d :: Revisa si hay clientes politicos.\n", id);
 		if(msgrcv(cola_politico_esperando,&msg_politico_esperando, sizeof(msg_politico_esperando),TIPO_POLITICO_ESPERANDO,IPC_NOWAIT) != -1){
             printf("EmpleadoComun %d :: Estoy atendiendo un cliente politico.\n\n", id);
@@ -279,7 +257,8 @@ void empleado_comun(int id){
         }
             else{
             	printf("EmpleadoComun %d :: No hay clientes por atender.\n\n", id);
-                atendiendo = 0;
+                msgrcv(cola_empleado_comun,&msg_empleado_comun,sizeof(msg_empleado_comun),TIPO_EMPLEADO_COMUN,0);
+                no_atendi++;
             }
         }
 	}
@@ -295,11 +274,11 @@ void empleado_empresa(int id){
     int cola_atencion_empresa = msgget((key_t)KEY_ATENCION_EMPRESA, 0666);
     int cola_termina_politico = msgget((key_t)KEY_TERMINA_POLITICO, 0666);
     int cola_termina_empresa = msgget((key_t)KEY_TERMINA_EMPRESA, 0666);
-    int atendiendo = 1;
+    int no_atendi = 0;
 
     msgrcv(cola_empleado_empresa,&msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, 0);
     
-	while(atendiendo){
+	while(no_atendi < 3){
 		printf("\nEmpleadoEmpresa %d :: Revisa si hay clientes politicos.\n", id);
 		
 		if(msgrcv(cola_politico_esperando,&msg_politico_esperando, sizeof(msg_politico_esperando),TIPO_POLITICO_ESPERANDO,IPC_NOWAIT) != -1){
@@ -321,7 +300,8 @@ void empleado_empresa(int id){
             }
             else{
             	printf("EmpleadoEmpresa %d :: No hay clientes por atender.\n\n", id);
-            	atendiendo = 0;
+                msgrcv(cola_empleado_empresa,&msg_empleado_empresa, sizeof(msg_empleado_empresa), TIPO_EMPLEADO_EMPRESA, 0);
+            	no_atendi++;
             }
         }
 	}

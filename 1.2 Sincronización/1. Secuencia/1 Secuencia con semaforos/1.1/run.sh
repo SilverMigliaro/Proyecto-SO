@@ -1,2 +1,2 @@
-gcc -o secuencia sincro1.1a.c
+gcc -pthread -o secuencia sincro1.1a.c
 ./secuencia

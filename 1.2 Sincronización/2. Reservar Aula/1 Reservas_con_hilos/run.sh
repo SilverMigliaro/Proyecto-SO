@@ -1,2 +1,2 @@
-gcc -o reserva reserva.c
+gcc -pthread -o reserva reserva.c
 ./reserva

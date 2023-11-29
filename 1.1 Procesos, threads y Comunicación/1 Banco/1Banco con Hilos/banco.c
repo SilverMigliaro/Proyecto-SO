@@ -5,9 +5,9 @@
 #include <pthread.h>
 #include <time.h>
 
-#define CANT_CLIENTES 80
-#define MAX_COLA_ENTRADA 30
-#define MAX_CLIENTE_COLA 15
+#define CANT_CLIENTES 15
+#define MAX_COLA_ENTRADA 8
+#define MAX_CLIENTE_COLA 2
 #define EMPLEADO_CLIENTES 1
 #define EMPLEADO_EMPRESA 2
 
@@ -45,23 +45,18 @@ void *cliente_comun(void *args){
         printf("ClienteComun %d :: Se retira de la cola de entrada\n", id);
         sem_post(&cola_entrada);
         printf("ClienteComun %d :: Ingreso en la cola de cliente Comun\n", id);
-        if(sem_trywait(&comun_esperando) == -1){
-            sem_post(&comun_esperando);
-            if(sem_trywait(&empleado_comun) == -1 ){
-                sem_post(&empleado_comun);
-            }
-            else{
-                sem_post(&empleado_comun);
-                sem_post(&empleado_comun);
-            }
+        sem_post(&comun_esperando);
+            
+        if(sem_trywait(&empleado_comun) == -1 ){
+            sem_post(&empleado_comun);
         }
         else{
-            sem_post(&comun_esperando);	
-            sem_post(&comun_esperando);
+            sem_post(&empleado_comun);
+            sem_post(&empleado_comun);
         }
         
-	printf("ClienteComun %d :: Esperando se atendido por empleado cliente Comun\n", id);
-	sem_wait(&atencion_comun);
+	    printf("ClienteComun %d :: Esperando se atendido por empleado cliente Comun\n", id);
+	    sem_wait(&atencion_comun);
         printf("ClienteComun %d :: Se retira de la cola de cliente Comun para ser atendido\n", id);
         sem_wait(&mutex_comun);
         printf("ClienteComun %d :: Se retira del banco\n", id);
@@ -82,28 +77,23 @@ void *cliente_empresa(void *args){
         printf("ClienteEmpresa %d :: Se retira de la cola de entrada\n", id);
         sem_post(&cola_entrada);
         printf("ClienteEmpresa %d :: Ingreso en la cola de cliente Empresa\n", id);
-        if(sem_trywait(&empresa_esperando)!=0){
-       		sem_post(&empresa_esperando);
-		      
-		    if(sem_trywait(&empleado_empresa[0]) == -1 ){
-		        sem_post(&empleado_empresa[0]);
-		    }
-            else{
-                sem_post(&empleado_empresa[0]);
-                sem_post(&empleado_empresa[0]);
-            }
-		    if(sem_trywait(&empleado_empresa[1]) == -1 ){
-		        sem_post(&empleado_empresa[1]);
-		    }
-            else{
-                sem_post(&empleado_empresa[1]);
-                sem_post(&empleado_empresa[1]);
-            }
-       	}
-       	else{
-       		sem_post(&empresa_esperando);	
-       		sem_post(&empresa_esperando);
-       	}
+        sem_post(&empresa_esperando);
+
+		if(sem_trywait(&empleado_empresa[0]) == -1 ){
+		    sem_post(&empleado_empresa[0]);
+		}
+        else{
+            sem_post(&empleado_empresa[0]);
+            sem_post(&empleado_empresa[0]);
+        }
+		if(sem_trywait(&empleado_empresa[1]) == -1 ){
+		    sem_post(&empleado_empresa[1]);
+		}
+        else{
+            sem_post(&empleado_empresa[1]);
+            sem_post(&empleado_empresa[1]);
+        }
+       	
 		printf("ClienteEmpresa %d :: Esperando se atendido por empleado cliente Empresa\n", id);
 		sem_wait(&atencion_empresa);
         printf("ClienteEmpresa %d :: Se retira de la cola de cliente Empresa para ser atendido\n", id);
@@ -126,37 +116,32 @@ void *cliente_politico(void *args){
         printf("ClientePolitico %d :: Se retira de la cola de entrada\n", id);
         sem_post(&cola_entrada);
         printf("ClientePolitico %d :: Ingreso en la cola de cliente Politico\n", id);
-       	if(sem_trywait(&politico_esperando)!=0){
-       		sem_post(&politico_esperando);
-       		if(sem_trywait(&empleado_comun) == -1 ){
-                sem_post(&empleado_comun);
-            }
-            else{
-                sem_post(&empleado_comun);
-                sem_post(&empleado_comun);
-            }
-            if(sem_trywait(&empleado_empresa[0]) == -1 ){
-                sem_post(&empleado_empresa[0]);
-            }
-            else{
-                sem_post(&empleado_empresa[0]);
-                sem_post(&empleado_empresa[0]);
-            }
-            if(sem_trywait(&empleado_empresa[1]) == -1 ){
-                sem_post(&empleado_empresa[1]);
-            }
-            else{
-                sem_post(&empleado_empresa[1]);
-                sem_post(&empleado_empresa[1]);
-            }
-       	}
-       	else{
-       		sem_post(&politico_esperando);	
-       		sem_post(&politico_esperando);
-       	}
-        
-	printf("ClientePolitico %d :: Esperando se atendido por empleado del banco.\n", id);
-	sem_wait(&atencion_politico);
+       	sem_post(&politico_esperando);
+       		
+        if(sem_trywait(&empleado_comun) == -1 ){
+            sem_post(&empleado_comun);
+        }
+        else{
+            sem_post(&empleado_comun);
+            sem_post(&empleado_comun);
+        }
+        if(sem_trywait(&empleado_empresa[0]) == -1 ){
+            sem_post(&empleado_empresa[0]);
+        }
+        else{
+            sem_post(&empleado_empresa[0]);
+            sem_post(&empleado_empresa[0]);
+        }
+        if(sem_trywait(&empleado_empresa[1]) == -1 ){
+            sem_post(&empleado_empresa[1]);
+        }
+        else{
+            sem_post(&empleado_empresa[1]);
+            sem_post(&empleado_empresa[1]);
+        }
+
+	    printf("ClientePolitico %d :: Esperando se atendido por empleado del banco.\n", id);
+	    sem_wait(&atencion_politico);
         printf("ClientePolitico %d :: Se retira de la cola de cliente Politico para ser atendido\n", id);
         sem_wait(&mutex_politico);
         printf("ClientePolitico %d :: Se retira del banco\n", id);
@@ -169,10 +154,10 @@ void *cliente_politico(void *args){
 
 void *hilo_empleado_comun(void *args){
  	int id = *((int *)args);
- 	int atendiendo = 1;
+ 	int no_atendi = 0;
  	sem_wait(&empleado_comun);
  	
-    while(atendiendo){
+    while(no_atendi < 3){
 
         printf("\nEmpleadoComun %d :: Revisa si hay clientes politicos.\n", id);
 
@@ -180,8 +165,8 @@ void *hilo_empleado_comun(void *args){
             printf("EmpleadoComun %d :: Estoy atendiendo un cliente politico.\n\n", id);
             sem_post(&atencion_politico);
             sem_post(&cola_politico);
-            sleep(5);
             sem_post(&mutex_politico);
+            sleep(5);
         }
         else{
             printf("EmpleadoComun %d :: Revisa si hay clientes comun.\n", id);
@@ -190,12 +175,13 @@ void *hilo_empleado_comun(void *args){
                 printf("EmpleadoComun %d :: Estoy atendiendo un cliente comun.\n\n", id);
                 sem_post(&atencion_comun);
                 sem_post(&cola_cliente_comun);
-                sleep(5);
                 sem_post(&mutex_comun);
+                sleep(5);
             }
             else{
             	printf("EmpleadoComun %d :: No hay clientes por atender.\n\n", id);
-    			atendiendo = 0;
+    			sem_wait(&empleado_comun);
+                no_atendi++;
             }
         }
     }
@@ -204,10 +190,10 @@ void *hilo_empleado_comun(void *args){
 
 void *hilo_empleado_empresa(void *args){
     int id = *((int *)args);
-    int atendiendo = 1;
+    int no_atendi = 0;
     sem_wait(&empleado_empresa[id]);
 
-    while(atendiendo){
+    while(no_atendi < 3){
 
         printf("\nEmpleadoEmpresa %d :: Revisa si hay clientes politicos.\n", id);
 
@@ -229,7 +215,8 @@ void *hilo_empleado_empresa(void *args){
             }
             else{
             	printf("EmpleadoEmpresa %d :: No hay clientes por atender.\n\n", id);
-    			atendiendo = 0;
+    			sem_wait(&empleado_empresa[id]);
+                no_atendi++;
             }
         }
     }
